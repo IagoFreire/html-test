@@ -5,15 +5,11 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [
     react({
-      // Permitir JSX em arquivos .js também
-      include: '**/*.{jsx,js}',
+      // Usar apenas arquivos .jsx (não .js)
+      include: '**/*.jsx',
       jsxRuntime: 'automatic',
     }),
   ],
-  define: {
-    // Polyfill para process.env (caso algum código ainda use)
-    'process.env': {},
-  },
   server: {
     port: 3001,
     proxy: {
@@ -26,16 +22,7 @@ export default defineConfig({
   build: {
     outDir: 'build',
   },
-  esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
-    exclude: [],
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-      },
-    },
+  resolve: {
+    extensions: ['.jsx', '.json'], // Removido .js para forçar uso de .jsx
   },
 });
