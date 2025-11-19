@@ -3,7 +3,12 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Permitir JSX em arquivos .js também
+      include: '**/*.{jsx,js}',
+    }),
+  ],
   server: {
     port: 3001,
     proxy: {
@@ -15,5 +20,9 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
+  },
+  esbuild: {
+    loader: 'jsx',
+    include: /src\/.*\.jsx?$/,
   },
 });
