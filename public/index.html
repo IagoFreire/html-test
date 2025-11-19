@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscar Gravações - Intelbras</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📹 Buscar Gravações</h1>
+      <p class="subtitle">Sistema de busca de gravações por data e câmera</p>
+    </header>
+
+    <div class="search-section">
+      <div class="date-selector">
+        <label for="date-input">Selecione a data:</label>
+        <input type="date" id="date-input" />
+        <button id="search-btn" class="btn-primary">
+          <span class="btn-icon">🔍</span>
+          Buscar
+        </button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Buscando gravações...</p>
+    </div>
+
+    <div id="error" class="error hidden"></div>
+
+    <div id="results" class="results hidden">
+      <div class="results-header">
+        <h2 id="results-title"></h2>
+        <div class="stats">
+          <span id="total-files"></span>
+          <span id="total-cameras"></span>
+        </div>
+      </div>
+
+      <div id="recordings-container"></div>
+    </div>
+
+    <div id="empty-state" class="empty-state">
+      <div class="empty-icon">📅</div>
+      <p>Selecione uma data para buscar gravações</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
