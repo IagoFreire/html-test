@@ -240,9 +240,6 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
   });
-} else {
-  // Em desenvolvimento, servir pasta public antiga se necessário
-  app.use(express.static('public'));
 }
 
 app.listen(PORT, () => {

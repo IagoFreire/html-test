@@ -29,8 +29,10 @@
    ```
 
 4. **Acessar a aplicação:**
-   - Frontend React: http://localhost:3001
+   - Frontend React (Vite): http://localhost:3001
    - Backend API: http://localhost:3000
+
+**Nota**: O Vite oferece hot-reload muito mais rápido que o Create React App!
 
 ## ✨ Funcionalidades Principais
 

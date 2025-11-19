@@ -4,7 +4,7 @@ Aplicativo web moderno desenvolvido com React e Material UI para buscar e visual
 
 ## 🚀 Tecnologias
 
-- **Frontend**: React 18 + Material UI 5 (Tema Verde)
+- **Frontend**: React 18 + Vite + Material UI 5 (Tema Verde)
 - **Backend**: Node.js + Express
 - **Estrutura**: Monorepo com cliente e servidor separados
 
@@ -64,9 +64,11 @@ npm run dev:all
 
 3. Acesse no navegador:
 ```
-http://localhost:3001 (frontend React)
+http://localhost:3001 (frontend React com Vite)
 http://localhost:3000 (backend API)
 ```
+
+**Nota**: O Vite é muito mais rápido que o Create React App para desenvolvimento!
 
 ### Produção
 
