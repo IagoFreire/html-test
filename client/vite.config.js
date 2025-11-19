@@ -7,6 +7,7 @@ export default defineConfig({
     react({
       // Permitir JSX em arquivos .js também
       include: '**/*.{jsx,js}',
+      jsxRuntime: 'automatic',
     }),
   ],
   server: {
@@ -24,5 +25,13 @@ export default defineConfig({
   esbuild: {
     loader: 'jsx',
     include: /src\/.*\.jsx?$/,
+    exclude: [],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
   },
 });
