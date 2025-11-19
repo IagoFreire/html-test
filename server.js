@@ -190,10 +190,20 @@ app.get('/api/file/:year/:month/:day/:filename', async (req, res) => {
   }
 });
 
-// Servir arquivos estáticos
-app.use(express.static('public'));
+// Servir arquivos estáticos do React em produção
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+} else {
+  // Em desenvolvimento, servir pasta public antiga se necessário
+  app.use(express.static('public'));
+}
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   console.log(`Buscando gravações em: ${BASE_PATH}`);
+  console.log(`Modo: ${process.env.NODE_ENV || 'desenvolvimento'}`);
 });
