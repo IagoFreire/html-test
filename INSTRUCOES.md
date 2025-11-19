@@ -32,6 +32,26 @@
    - Frontend React: http://localhost:3001
    - Backend API: http://localhost:3000
 
+## ✨ Funcionalidades Principais
+
+### 🎯 Busca por Data
+- Selecione uma data no calendário
+- Clique em "Buscar" para ver todas as gravações do dia
+
+### 📹 Filtro por Câmera
+- Após a primeira busca, o filtro de câmera será habilitado
+- Selecione uma câmera específica para filtrar os resultados
+- Selecione "Todas as câmeras" para remover o filtro
+
+### 📑 Abas por Câmera
+- Cada câmera aparece em uma aba separada
+- Navegue entre as abas para ver as gravações de cada câmera
+- O número de gravações aparece em cada aba
+
+### 🎨 Tema Verde
+- Interface com tema verde padrão
+- Design moderno e responsivo
+
 ## ⚠️ Importante
 
 - Certifique-se de que o caminho das gravações está correto no arquivo `server.js`:
@@ -57,3 +77,13 @@ npm start
 ```
 
 Agora tudo estará disponível em http://localhost:3000
+
+## 🔍 Reconhecimento de Câmeras
+
+O sistema reconhece automaticamente câmeras com nomes compostos:
+- ✅ "Portão - Esquerda"
+- ✅ "Portão - Direita"  
+- ✅ "Casa - Quintal"
+- ✅ E outros padrões similares
+
+Cada câmera aparece em uma aba separada para fácil navegação.

@@ -40,6 +40,36 @@ async function listFiles(dirPath) {
 
 // Função para extrair o nome da câmera do nome do arquivo
 function extractCameraName(filename) {
+  // Padrões específicos: Portão - Esquerda, Portão - Direita, Casa - Quintal
+  // Exemplos: 
+  // - Portao - Esquerda_20251119_143022.mp4
+  // - Casa - Quintal_20251119_143022.mp4
+  // - Portao-Esquerda_20251119_143022.mp4
+  
+  // Primeiro, tentar padrões com hífen e espaço (ex: "Portão - Esquerda")
+  // Procura por padrão: texto - texto seguido de underscore ou data
+  const patternWithSpace = /^([A-Za-zÀ-ÿ\s]+?)\s*-\s*([A-Za-zÀ-ÿ\s]+?)(?:_|\d{4})/;
+  const matchWithSpace = filename.match(patternWithSpace);
+  if (matchWithSpace) {
+    const part1 = matchWithSpace[1].trim();
+    const part2 = matchWithSpace[2].trim();
+    // Se tiver duas partes separadas por " - ", juntar
+    if (part1 && part2 && !/^\d/.test(part2)) {
+      return `${part1} - ${part2}`;
+    }
+  }
+  
+  // Tentar padrões com hífen sem espaço (ex: "Portao-Esquerda")
+  const patternWithHyphen = /^([A-Za-zÀ-ÿ\s]+?)-([A-Za-zÀ-ÿ\s]+?)(?:_|\d{4})/;
+  const matchWithHyphen = filename.match(patternWithHyphen);
+  if (matchWithHyphen) {
+    const part1 = matchWithHyphen[1].trim();
+    const part2 = matchWithHyphen[2].trim();
+    if (part1 && part2 && !/^\d/.test(part2)) {
+      return `${part1} - ${part2}`;
+    }
+  }
+  
   // Padrões comuns de nomenclatura de câmeras Intelbras:
   // CAM01_20251119_143022.mp4
   // Camera-01_2025-11-19_14-30-22.mp4
@@ -73,7 +103,7 @@ function extractCameraName(filename) {
   if (dateMatch) {
     const beforeDate = filename.substring(0, filename.indexOf(dateMatch[1]));
     if (beforeDate) {
-      return beforeDate.replace(/[_-]+$/, '') || 'Desconhecida';
+      return beforeDate.replace(/[_-]+$/, '').trim() || 'Desconhecida';
     }
   }
   
@@ -86,6 +116,7 @@ function extractCameraName(filename) {
 app.get('/api/recordings/:year/:month/:day', async (req, res) => {
   try {
     const { year, month, day } = req.params;
+    const { camera } = req.query; // Filtro opcional por câmera
     
     // Construir o caminho: D:\Intelbras\LocalRecording\ano\mês\dia
     const recordingsPath = path.join(BASE_PATH, year, month, day);
@@ -97,7 +128,8 @@ app.get('/api/recordings/:year/:month/:day', async (req, res) => {
       return res.json({
         success: false,
         message: 'Diretório não encontrado para esta data',
-        recordings: {}
+        recordings: {},
+        cameras: []
       });
     }
     
@@ -106,9 +138,16 @@ app.get('/api/recordings/:year/:month/:day', async (req, res) => {
     
     // Agrupar por câmera
     const recordingsByCamera = {};
+    const camerasSet = new Set();
     
     files.forEach(file => {
       const cameraName = extractCameraName(file.name);
+      camerasSet.add(cameraName);
+      
+      // Se houver filtro de câmera, pular se não corresponder
+      if (camera && cameraName !== camera) {
+        return;
+      }
       
       if (!recordingsByCamera[cameraName]) {
         recordingsByCamera[cameraName] = [];
@@ -133,12 +172,16 @@ app.get('/api/recordings/:year/:month/:day', async (req, res) => {
       );
     });
     
+    // Lista de todas as câmeras disponíveis (ordenada)
+    const cameras = Array.from(camerasSet).sort();
+    
     res.json({
       success: true,
       date: `${day}/${month}/${year}`,
-      totalFiles: files.length,
+      totalFiles: camera ? recordingsByCamera[camera]?.length || 0 : files.length,
       totalCameras: Object.keys(recordingsByCamera).length,
-      recordings: recordingsByCamera
+      recordings: recordingsByCamera,
+      cameras: cameras // Lista de todas as câmeras disponíveis
     });
     
   } catch (error) {

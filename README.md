@@ -4,7 +4,7 @@ Aplicativo web moderno desenvolvido com React e Material UI para buscar e visual
 
 ## 🚀 Tecnologias
 
-- **Frontend**: React 18 + Material UI 5
+- **Frontend**: React 18 + Material UI 5 (Tema Verde)
 - **Backend**: Node.js + Express
 - **Estrutura**: Monorepo com cliente e servidor separados
 
@@ -16,6 +16,18 @@ D:\Intelbras\LocalRecording\ano\mês\dia
 ```
 
 Exemplo: `D:\Intelbras\LocalRecording\2025\11\19`
+
+## ✨ Funcionalidades
+
+- ✅ Interface moderna com Material UI (Tema Verde)
+- ✅ Busca de gravações por data
+- ✅ **Filtro por câmera** na busca
+- ✅ **Agrupamento por abas (Tabs)** - cada câmera em uma aba
+- ✅ Reconhecimento de câmeras com nomes compostos (ex: "Portão - Esquerda", "Casa - Quintal")
+- ✅ Exibição de informações dos arquivos (nome, tamanho, data de modificação)
+- ✅ Design responsivo
+- ✅ Estatísticas de total de arquivos e câmeras
+- ✅ Botão para abrir/visualizar cada gravação
 
 ## 📦 Instalação
 
@@ -52,8 +64,8 @@ npm run dev:all
 
 3. Acesse no navegador:
 ```
-http://localhost:3000 (backend)
-http://localhost:3001 (frontend React - porta padrão do Create React App)
+http://localhost:3001 (frontend React)
+http://localhost:3000 (backend API)
 ```
 
 ### Produção
@@ -78,16 +90,15 @@ npm start
 http://localhost:3000
 ```
 
-## ✨ Funcionalidades
+## 🎨 Recursos do Material UI
 
-- ✅ Interface moderna com Material UI
-- ✅ Busca de gravações por data
-- ✅ Agrupamento automático por câmera
-- ✅ Exibição de informações dos arquivos (nome, tamanho, data de modificação)
-- ✅ Design responsivo
-- ✅ Estatísticas de total de arquivos e câmeras
-- ✅ Visualização de gravações agrupadas por câmera
-- ✅ Botão para abrir/visualizar cada gravação
+- Tema verde personalizado
+- Componentes modernos e acessíveis
+- Design responsivo
+- Ícones Material Design
+- Cards e Listas estilizadas
+- **Tabs (Abas) para agrupar por câmera**
+- **Filtro de câmera no formulário de busca**
 
 ## ⚙️ Configuração
 
@@ -105,10 +116,12 @@ const BASE_PATH = 'D:\\Intelbras\\LocalRecording';
 - `npm run client:build` - Constrói o frontend para produção
 - `npm run dev:all` - Inicia backend e frontend simultaneamente
 
-## 🎨 Recursos do Material UI
+## 🔍 Reconhecimento de Câmeras
 
-- Tema personalizado com cores gradiente
-- Componentes modernos e acessíveis
-- Design responsivo
-- Ícones Material Design
-- Cards e Listas estilizadas
+O sistema reconhece automaticamente câmeras com nomes compostos:
+- "Portão - Esquerda"
+- "Portão - Direita"
+- "Casa - Quintal"
+- E outros padrões similares
+
+Cada câmera aparece em uma aba separada para fácil navegação.

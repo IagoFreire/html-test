@@ -12,8 +12,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardActions,
-  Chip,
   List,
   ListItem,
   ListItemText,
@@ -22,6 +20,13 @@ import {
   Divider,
   AppBar,
   Toolbar,
+  Chip,
+  Tabs,
+  Tab,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -30,20 +35,31 @@ import {
   PlayArrow as PlayIcon,
   AccessTime as TimeIcon,
   Storage as StorageIcon,
+  FilterList as FilterIcon,
 } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
+// Tema verde
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#667eea',
+      main: '#4caf50', // Verde principal
+      light: '#81c784',
+      dark: '#388e3c',
+      contrastText: '#fff',
     },
     secondary: {
-      main: '#764ba2',
+      main: '#66bb6a', // Verde secundário
+      light: '#a5d6a7',
+      dark: '#43a047',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#f1f8f4', // Verde muito claro
+      paper: '#ffffff',
+    },
+    success: {
+      main: '#4caf50',
     },
   },
   typography: {
@@ -60,9 +76,11 @@ function App() {
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
+  const [selectedCamera, setSelectedCamera] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [results, setResults] = useState(null);
+  const [tabValue, setTabValue] = useState(0);
 
   const handleSearch = async () => {
     if (!selectedDate) {
@@ -73,14 +91,24 @@ function App() {
     setLoading(true);
     setError(null);
     setResults(null);
+    setTabValue(0);
 
     try {
       const [year, month, day] = selectedDate.split('-');
-      const response = await fetch(`${API_BASE_URL}/recordings/${year}/${month}/${day}`);
+      let url = `${API_BASE_URL}/recordings/${year}/${month}/${day}`;
+      
+      // Adicionar filtro de câmera se selecionado
+      if (selectedCamera) {
+        url += `?camera=${encodeURIComponent(selectedCamera)}`;
+      }
+      
+      const response = await fetch(url);
       const data = await response.json();
 
       if (data.success) {
         setResults(data);
+        // Resetar para a primeira aba quando os resultados mudarem
+        setTabValue(0);
       } else {
         setError(data.message || 'Nenhuma gravação encontrada para esta data');
       }
@@ -96,6 +124,10 @@ function App() {
     if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
 
   const openFile = (recording) => {
@@ -115,11 +147,23 @@ function App() {
     });
   };
 
+  // Obter lista de câmeras para o filtro (todas as câmeras disponíveis)
+  // Se houver resultados, usar a lista de câmeras retornada pela API
+  // Caso contrário, usar as câmeras dos resultados anteriores (se houver)
+  const availableCameras = results?.cameras || [];
+
+  // Obter câmeras dos resultados atuais (após filtro aplicado)
+  const currentCameras = results ? Object.keys(results.recordings).sort() : [];
+
+  // Para as abas, usar sempre as câmeras dos resultados atuais
+  // Se houver filtro aplicado, mostrará apenas a câmera filtrada
+  const camerasForTabs = currentCameras;
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
-        <AppBar position="static" elevation={0}>
+        <AppBar position="static" elevation={0} sx={{ bgcolor: 'primary.main' }}>
           <Toolbar>
             <VideocamIcon sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -130,10 +174,10 @@ function App() {
 
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
-            <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+            <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.dark' }}>
               Buscar Gravações por Data
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
               <TextField
                 label="Selecione a data"
                 type="date"
@@ -145,13 +189,33 @@ function App() {
                 }}
                 sx={{ flexGrow: 1, minWidth: 200 }}
               />
+              <FormControl sx={{ minWidth: 250 }} disabled={!availableCameras.length && !results}>
+                <InputLabel id="camera-filter-label">Filtrar por Câmera (Opcional)</InputLabel>
+                <Select
+                  labelId="camera-filter-label"
+                  id="camera-filter"
+                  value={selectedCamera}
+                  label="Filtrar por Câmera (Opcional)"
+                  onChange={(e) => setSelectedCamera(e.target.value)}
+                  startAdornment={<FilterIcon sx={{ mr: 1, color: 'text.secondary' }} />}
+                >
+                  <MenuItem value="">
+                    <em>Todas as câmeras</em>
+                  </MenuItem>
+                  {availableCameras.map((camera) => (
+                    <MenuItem key={camera} value={camera}>
+                      {camera}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <Button
                 variant="contained"
                 size="large"
                 startIcon={<SearchIcon />}
                 onClick={handleSearch}
                 disabled={loading}
-                sx={{ minWidth: 150, height: 56 }}
+                sx={{ minWidth: 150, height: 56, bgcolor: 'primary.main' }}
               >
                 Buscar
               </Button>
@@ -161,7 +225,7 @@ function App() {
           {loading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
               <Box sx={{ textAlign: 'center' }}>
-                <CircularProgress size={60} />
+                <CircularProgress size={60} sx={{ color: 'primary.main' }} />
                 <Typography variant="body1" sx={{ mt: 2 }}>
                   Buscando gravações...
                 </Typography>
@@ -177,7 +241,16 @@ function App() {
 
           {results && !loading && (
             <Box>
-              <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'white' }}>
+              <Paper 
+                elevation={2} 
+                sx={{ 
+                  p: 3, 
+                  mb: 3, 
+                  bgcolor: 'primary.main', 
+                  color: 'white',
+                  background: 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)'
+                }}
+              >
                 <Typography variant="h5" gutterBottom>
                   Gravações de {results.date}
                 </Typography>
@@ -202,24 +275,75 @@ function App() {
                   </Typography>
                 </Paper>
               ) : (
-                <Grid container spacing={3}>
-                  {Object.keys(results.recordings)
-                    .sort()
-                    .map((cameraName) => (
-                      <Grid item xs={12} key={cameraName}>
-                        <Card elevation={3}>
+                <Paper elevation={3}>
+                  <Tabs
+                    value={tabValue}
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    sx={{
+                      borderBottom: 1,
+                      borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                      '& .MuiTab-root': {
+                        color: 'text.secondary',
+                        '&.Mui-selected': {
+                          color: 'primary.main',
+                        },
+                      },
+                      '& .MuiTabs-indicator': {
+                        bgcolor: 'primary.main',
+                      },
+                    }}
+                  >
+                    {camerasForTabs.map((camera, index) => (
+                      <Tab
+                        key={camera}
+                        label={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <VideocamIcon fontSize="small" />
+                            <span>{camera}</span>
+                            <Chip
+                              label={results.recordings[camera]?.length || 0}
+                              size="small"
+                              sx={{
+                                height: 20,
+                                fontSize: '0.75rem',
+                                bgcolor: 'primary.light',
+                                color: 'white',
+                              }}
+                            />
+                          </Box>
+                        }
+                      />
+                    ))}
+                  </Tabs>
+
+                  {camerasForTabs.map((camera, index) => (
+                    <Box
+                      key={camera}
+                      role="tabpanel"
+                      hidden={tabValue !== index}
+                      sx={{ p: 3 }}
+                    >
+                      {tabValue === index && results.recordings[camera] && (
+                        <Card elevation={2}>
                           <CardHeader
                             avatar={<VideocamIcon color="primary" />}
-                            title={cameraName}
-                            subheader={`${results.recordings[cameraName].length} gravação(ões)`}
-                            sx={{ bgcolor: 'primary.main', color: 'white' }}
+                            title={camera}
+                            subheader={`${results.recordings[camera].length} gravação(ões)`}
+                            sx={{ 
+                              bgcolor: 'primary.main', 
+                              color: 'white',
+                              background: 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)'
+                            }}
                             titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
                             subheaderTypographyProps={{ color: 'rgba(255,255,255,0.8)' }}
                           />
                           <CardContent sx={{ p: 0 }}>
                             <List>
-                              {results.recordings[cameraName].map((recording, index) => (
-                                <React.Fragment key={index}>
+                              {results.recordings[camera].map((recording, recIndex) => (
+                                <React.Fragment key={recIndex}>
                                   <ListItem>
                                     <ListItemText
                                       primary={
@@ -234,12 +358,14 @@ function App() {
                                             label={recording.sizeFormatted}
                                             size="small"
                                             variant="outlined"
+                                            sx={{ borderColor: 'primary.main', color: 'primary.main' }}
                                           />
                                           <Chip
                                             icon={<TimeIcon />}
                                             label={formatDateTime(recording.modified)}
                                             size="small"
                                             variant="outlined"
+                                            sx={{ borderColor: 'primary.main', color: 'primary.main' }}
                                           />
                                         </Box>
                                       }
@@ -255,22 +381,23 @@ function App() {
                                       </IconButton>
                                     </ListItemSecondaryAction>
                                   </ListItem>
-                                  {index < results.recordings[cameraName].length - 1 && <Divider />}
+                                  {recIndex < results.recordings[camera].length - 1 && <Divider />}
                                 </React.Fragment>
                               ))}
                             </List>
                           </CardContent>
                         </Card>
-                      </Grid>
-                    ))}
-                </Grid>
+                      )}
+                    </Box>
+                  ))}
+                </Paper>
               )}
             </Box>
           )}
 
           {!results && !loading && !error && (
             <Paper sx={{ p: 6, textAlign: 'center' }}>
-              <VideocamIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
+              <VideocamIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
               <Typography variant="h6" color="text.secondary">
                 Selecione uma data para buscar gravações
               </Typography>
