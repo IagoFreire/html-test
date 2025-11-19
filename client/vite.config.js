@@ -10,6 +10,10 @@ export default defineConfig({
       jsxRuntime: 'automatic',
     }),
   ],
+  define: {
+    // Polyfill para process.env (caso algum código ainda use)
+    'process.env': {},
+  },
   server: {
     port: 3001,
     proxy: {
